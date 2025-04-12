@@ -33,52 +33,57 @@ public class ExplorerSearch {
         // Please also make more test cases
         // I STRONGLY RECOMMEND testing some helpers you might make too
 
-        int rows = island.length;
-        int cols = island[0].length;
-
-
-        int startRow = 0;
-        int startCol = 0;
-
-        for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < cols; c++) {
-                if (island[r][c] == 0) {
-                    startRow = r;
-                    startCol = c;
-                    break;
-                }
-            }
-        }
-
-        boolean[][] visited = new boolean[rows][cols];
-
-        return explore(island, visited, startRow, startCol);
+        int[] start = findStartPoint(island);
+        boolean[][] visited = new boolean[island.length][island[0].length];
+        return exploreArea(island, start[0], start[1], visited);
     }
 
 
-    // A method that explores the map and counts reachable land
-    public static int explore(int[][] island, boolean[][] visited, int r, int c) {
-        // If out of bounds, return 0
-        if (r < 0 || r >= island.length || c < 0 || c >= island[0].length) {
-            return 0;
-        }
-        
-        if (visited[r][c] || island[r][c] == 2 || island[r][c] == 3) {
+    public static int exploreArea(int[][] island, int row, int col, boolean[][] visited) {
+        if (row < 0 || row >= island.length || col < 0 || col >= island[0].length) {
             return 0;
         }
 
+        if (visited[row][col] || island[row][col] == 2 || island[row][col] == 3) {
+            return 0;
+        }
 
-        visited[r][c] = true;
-
+        visited[row][col] = true;
 
         int count = 1;
 
-        // Check all 4 directions
-        count += explore(island, visited, r + 1, c);
-        count += explore(island, visited, r - 1, c);
-        count += explore(island, visited, r, c + 1);
-        count += explore(island, visited, r, c - 1);
+        // Move Up
+        if (row - 1 >= 0 && (island[row - 1][col] == 1 || island[row - 1][col] == 0)) {
+            count += exploreArea(island, row - 1, col, visited);
+        }
+
+        // Move Down
+        if (row + 1 < island.length && (island[row + 1][col] == 1 || island[row + 1][col] == 0)) {
+            count += exploreArea(island, row + 1, col, visited);
+        }
+
+        // Move Left
+        if (col - 1 >= 0 && (island[row][col - 1] == 1 || island[row][col - 1] == 0)) {
+            count += exploreArea(island, row, col - 1, visited);
+        }
+
+        // Move Right
+        if (col + 1 < island[0].length && (island[row][col + 1] == 1 || island[row][col + 1] == 0)) {
+            count += exploreArea(island, row, col + 1, visited);
+        }
 
         return count;
+    }
+
+    //finding the starting location
+    private static int[] findStartPoint(int[][] island) {
+        for (int r = 0; r < island.length; r++) {
+            for (int c = 0; c < island[0].length; c++) {
+                if (island[r][c] == 0) {
+                    return new int[] { r, c };
+                }
+            }
+        }
+        throw new IllegalArgumentException("No starting point (0) found in island.");
     }
 }
